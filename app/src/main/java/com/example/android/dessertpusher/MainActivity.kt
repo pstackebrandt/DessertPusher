@@ -18,6 +18,7 @@ package com.example.android.dessertpusher
 
 import android.content.ActivityNotFoundException
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
@@ -26,6 +27,7 @@ import androidx.core.app.ShareCompat
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.LifecycleObserver
 import com.example.android.dessertpusher.databinding.ActivityMainBinding
+import timber.log.Timber
 
 class MainActivity : AppCompatActivity(), LifecycleObserver {
 
@@ -34,6 +36,7 @@ class MainActivity : AppCompatActivity(), LifecycleObserver {
 
     // Contains all the views
     private lateinit var binding: ActivityMainBinding
+    private lateinit var dessertTimer: DessertTimer
 
     /** Dessert Data **/
 
@@ -65,6 +68,8 @@ class MainActivity : AppCompatActivity(), LifecycleObserver {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        Timber.i("onCreate called")
+
         // Use Data Binding to get reference to the views
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
 
@@ -72,12 +77,81 @@ class MainActivity : AppCompatActivity(), LifecycleObserver {
             onDessertClicked()
         }
 
+        dessertTimer = DessertTimer()
+
         // Set the TextViews to the right values
         binding.revenue = revenue
         binding.amountSold = dessertsSold
 
         // Make sure the correct dessert is showing
         binding.dessertButton.setImageResource(currentDessert.imageId)
+    }
+
+    /**
+     * Dispatch onStart() to all fragments.
+     */
+    override fun onStart() {
+        super.onStart()
+        Timber.i("onStart called")
+        dessertTimer.startTimer()
+    }
+
+    /**
+     * Dispatch onPause() to fragments.
+     */
+    override fun onPause() {
+        super.onPause()
+        Timber.i("onPause called")
+    }
+
+    /**
+     * Dispatch onResume() to fragments.  Note that for better inter-operation
+     * with older versions of the platform, at the point of this call the
+     * fragments attached to the activity are *not* resumed.
+     */
+    override fun onResume() {
+        super.onResume()
+        Timber.i("onResume called")
+    }
+
+    override fun onStop() {
+        super.onStop()
+        Timber.i("onStop called")
+        dessertTimer.stopTimer()
+    }
+
+    /**
+     * Called after [.onStop] when the current activity is being
+     * re-displayed to the user (the user has navigated back to it).  It will
+     * be followed by [.onStart] and then [.onResume].
+     *
+     *
+     * For activities that are using raw [Cursor] objects (instead of
+     * creating them through
+     * [.managedQuery],
+     * this is usually the place
+     * where the cursor should be requeried (because you had deactivated it in
+     * [.onStop].
+     *
+     *
+     * *Derived classes must call through to the super class's
+     * implementation of this method.  If they do not, an exception will be
+     * thrown.*
+     *
+     * @see .onStop
+     *
+     * @see .onStart
+     *
+     * @see .onResume
+     */
+    override fun onRestart() {
+        super.onRestart()
+        Timber.i("onRestart called")
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        Timber.i("onDestroy called")
     }
 
     /**
