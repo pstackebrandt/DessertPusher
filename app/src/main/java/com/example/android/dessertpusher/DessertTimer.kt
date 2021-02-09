@@ -49,7 +49,14 @@ class DessertTimer(lifecycle: Lifecycle) : LifecycleObserver {
     private var handler = Handler()
     private lateinit var runnable: Runnable
 
+<<<<<<< HEAD
     init {
+=======
+
+    init {
+        // Add this as a lifecycle Observer, which allows for the class to react to changes in this
+        // activity's lifecycle state
+>>>>>>> f438421a58b54020ef89df28eacd3782a3a7706b
         lifecycle.addObserver(this)
     }
 
