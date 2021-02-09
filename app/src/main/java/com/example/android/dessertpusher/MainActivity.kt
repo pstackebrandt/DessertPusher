@@ -18,7 +18,6 @@ package com.example.android.dessertpusher
 
 import android.content.ActivityNotFoundException
 import android.os.Bundle
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
@@ -29,10 +28,16 @@ import androidx.lifecycle.LifecycleObserver
 import com.example.android.dessertpusher.databinding.ActivityMainBinding
 import timber.log.Timber
 
+const val KEY_REVENUE = "key_revenue"
+const val KEY_DESSERT_SOLD_COUNT = "key_dessertsSold"
+const val KEY_DESSERT_TIMER_SECONDS = "key_dessertTimer"
+
+
 class MainActivity : AppCompatActivity(), LifecycleObserver {
 
     private var revenue = 0
     private var dessertsSold = 0
+
 
     // Contains all the views
     private lateinit var binding: ActivityMainBinding
@@ -49,19 +54,19 @@ class MainActivity : AppCompatActivity(), LifecycleObserver {
 
     // Create a list of all desserts, in order of when they start being produced
     private val allDesserts = listOf(
-            Dessert(R.drawable.cupcake, 5, 0),
-            Dessert(R.drawable.donut, 10, 5),
-            Dessert(R.drawable.eclair, 15, 20),
-            Dessert(R.drawable.froyo, 30, 50),
-            Dessert(R.drawable.gingerbread, 50, 100),
-            Dessert(R.drawable.honeycomb, 100, 200),
-            Dessert(R.drawable.icecreamsandwich, 500, 500),
-            Dessert(R.drawable.jellybean, 1000, 1000),
-            Dessert(R.drawable.kitkat, 2000, 2000),
-            Dessert(R.drawable.lollipop, 3000, 4000),
-            Dessert(R.drawable.marshmallow, 4000, 8000),
-            Dessert(R.drawable.nougat, 5000, 16000),
-            Dessert(R.drawable.oreo, 6000, 20000)
+        Dessert(R.drawable.cupcake, 5, 0),
+        Dessert(R.drawable.donut, 10, 5),
+        Dessert(R.drawable.eclair, 15, 20),
+        Dessert(R.drawable.froyo, 30, 50),
+        Dessert(R.drawable.gingerbread, 50, 100),
+        Dessert(R.drawable.honeycomb, 100, 200),
+        Dessert(R.drawable.icecreamsandwich, 500, 500),
+        Dessert(R.drawable.jellybean, 1000, 1000),
+        Dessert(R.drawable.kitkat, 2000, 2000),
+        Dessert(R.drawable.lollipop, 3000, 4000),
+        Dessert(R.drawable.marshmallow, 4000, 8000),
+        Dessert(R.drawable.nougat, 5000, 16000),
+        Dessert(R.drawable.oreo, 6000, 20000)
     )
     private var currentDessert = allDesserts[0]
 
@@ -78,6 +83,13 @@ class MainActivity : AppCompatActivity(), LifecycleObserver {
         }
 
         dessertTimer = DessertTimer(this.lifecycle)
+
+        if (savedInstanceState != null) {
+            revenue = savedInstanceState.getInt(KEY_REVENUE)
+            dessertsSold = savedInstanceState.getInt(KEY_DESSERT_SOLD_COUNT)
+            dessertTimer.secondsCount = savedInstanceState.getInt(KEY_DESSERT_TIMER_SECONDS)
+            Timber.i("savedInstanceState != null, revenue: $revenue")
+        }
 
         // Set the TextViews to the right values
         binding.revenue = revenue
@@ -103,6 +115,14 @@ class MainActivity : AppCompatActivity(), LifecycleObserver {
         Timber.i("onPause called")
     }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putInt(KEY_REVENUE, revenue)
+        outState.putInt(KEY_DESSERT_SOLD_COUNT, dessertsSold)
+        outState.putInt(KEY_DESSERT_TIMER_SECONDS, dessertTimer.secondsCount)
+        Timber.i("onSaveInstanceState called")
+    }
+
     /**
      * Dispatch onResume() to fragments.  Note that for better inter-operation
      * with older versions of the platform, at the point of this call the
@@ -111,6 +131,36 @@ class MainActivity : AppCompatActivity(), LifecycleObserver {
     override fun onResume() {
         super.onResume()
         Timber.i("onResume called")
+    }
+
+    /**
+     * This method is called after [.onStart] when the activity is
+     * being re-initialized from a previously saved state, given here in
+     * <var>savedInstanceState</var>.  Most implementations will simply use [.onCreate]
+     * to restore their state, but it is sometimes convenient to do it here
+     * after all of the initialization has been done or to allow subclasses to
+     * decide whether to use your default implementation.  The default
+     * implementation of this method performs a restore of any view state that
+     * had previously been frozen by [.onSaveInstanceState].
+     *
+     *
+     * This method is called between [.onStart] and
+     * [.onPostCreate]. This method is called only when recreating
+     * an activity; the method isn't invoked if [.onStart] is called for
+     * any other reason.
+     *
+     * @param savedInstanceState the data most recently supplied in [.onSaveInstanceState].
+     *
+     * @see .onCreate
+     *
+     * @see .onPostCreate
+     *
+     * @see .onResume
+     *
+     * @see .onSaveInstanceState
+     */
+    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
+        super.onRestoreInstanceState(savedInstanceState)
     }
 
     override fun onStop() {
@@ -196,14 +246,14 @@ class MainActivity : AppCompatActivity(), LifecycleObserver {
      */
     private fun onShare() {
         val shareIntent = ShareCompat.IntentBuilder.from(this)
-                .setText(getString(R.string.share_text, dessertsSold, revenue))
-                .setType("text/plain")
-                .intent
+            .setText(getString(R.string.share_text, dessertsSold, revenue))
+            .setType("text/plain")
+            .intent
         try {
             startActivity(shareIntent)
         } catch (ex: ActivityNotFoundException) {
             Toast.makeText(this, getString(R.string.sharing_not_available),
-                    Toast.LENGTH_LONG).show()
+                Toast.LENGTH_LONG).show()
         }
     }
 

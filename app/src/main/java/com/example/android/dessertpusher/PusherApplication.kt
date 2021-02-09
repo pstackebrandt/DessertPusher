@@ -3,7 +3,7 @@ package com.example.android.dessertpusher
 import android.app.Application
 import timber.log.Timber
 
-class PusherApplication : Application(){
+class PusherApplication : Application() {
     /**
      * Called when the application is starting, before any activity, service,
      * or receiver objects (excluding content providers) have been created.
